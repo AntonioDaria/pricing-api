@@ -66,7 +66,9 @@ Response: `{ "prices": [ { hotel, price, currency, difference, arrival_date } ] 
    gap, or a non-existent Feb 29) → return the current price with **`difference: null`**.
    Missing **current** → **omit** that row.
 4. **"Lowest price"** = `min(price_value)` within the newest reading, **after**
-   filtering its `prices` by currency + `cancellable`.
+   filtering its `prices` by currency + `cancellable`. The `cancellable` flag is a
+   toggle (**assumption**): `true` (default) keeps only cancellable options; `false`
+   applies no cancellability filter.
 5. **Graceful degradation.** Per-row problems degrade (null / omit); the request
    returns **`200` with partial results**. Hard stops only for **bad input → `422`**
    and **store unavailable → `5xx`**. A missing key is *expected* (degrade); a store
@@ -122,8 +124,15 @@ place — one consistent JSON error shape, kept deliberately simple:
 ## Conventions
 
 - Python 3.12, full type hints, pydantic schemas, structlog. uv + ruff.
+- **Money as `float`** to match the OpenAPI `number` type and the source data; a
+  single same-currency subtraction of display prices makes float acceptable here.
+  A real pricing system should use **integer minor units + currency code** with
+  integer arithmetic and float only at the display edge which also makes 
+  cross-currency operations an explicit error.
 - Module-level docstring on every file; short docstring on every public
-  function/class, **including tests**. No `ai-usage/` folder.
+  function/class, **including tests**. Docstrings state *what* a function does and
+  its contract (args / returns / edge behaviour) — design **rationale** lives in
+  this doc, not in docstrings. No `ai-usage/` folder.
 
 ## Testing
 
@@ -155,8 +164,3 @@ place — one consistent JSON error shape, kept deliberately simple:
 - **Precomputed/materialised differences**; streaming updates on new scrapes.
 - Shared **Redis** cache; response-level caching; CDN edge caching.
 - Observability: metrics, tracing, SLOs on the per-request timing.
-
-## Ways of working
-
-Build one phase at a time, a passing test and a commit per phase, non-trivial
-choices explained in the commit message.
