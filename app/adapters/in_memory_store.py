@@ -17,7 +17,7 @@ class InMemoryPricingStore:
     def __init__(self, readings: Iterable[Reading]) -> None:
         """Index the given readings by key and record the newest extract per (hotel, arrival)."""
         self._readings: dict[ReadingKey, Reading] = {}
-        self._latest_extract: dict[HotelArrival, int] = {} # side index for get_latest_readings
+        self._latest_extract: dict[HotelArrival, int] = {}  # side index for get_latest_readings
 
         for reading in readings:
             key = ReadingKey(

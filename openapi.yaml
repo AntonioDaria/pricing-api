@@ -1,0 +1,78 @@
+openapi: 3.0.2
+info:
+  title: Experienced Backend Engineer - Technical Interview
+  description: This spec holds the specification for the API that should be ideated as part of the technical interview.
+  version: 1.0.0
+paths:
+  /pricing/pre_corona_difference/:
+    get:
+      summary: Pricing difference API.
+      description: Fetch the most recent, lowest prices, corresponding to the provided parameters, for a specified month and compare it with the same month X years ago.
+      parameters:
+        - name: month
+          in: query
+          description: The month for which data should be returned, formatted as YYYY-MM.
+          required: true
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+        - name: currency
+          in: query
+          description: The currency in which prices should be returned.
+          required: true
+          schema:
+            type: string
+            pattern: '^[A-Z]{3}$'
+        - name: hotels
+          in: query
+          description: The identifiers of the hotels for which prices should be returned.
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+            maxItems: 10
+        - name: years_ago
+          in: query
+          description: The number of years ago that the historic prices were extracted vs which the difference should be calculated.
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+        - name: cancellable
+          in: query
+          description: Filter on cancellable prices only.
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: The pricing data corresponding to the requested parameters. One price and its difference for every hotel on each arrival date within the requested month.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        hotel:
+                          type: integer
+                          description: The identifier of the hotel to which this price belongs.
+                        price:
+                          type: number
+                          description: The current lowest price.
+                        currency:
+                          type: string
+                          pattern: '^[A-Z]{3}$'
+                          description: The currency related to the price and the difference.
+                        difference:
+                          type: number
+                          description: The difference between the current price and the price X years ago.
+                        arrival_date:
+                          type: string
+                          format: date
+                          description: The date for which the current price is listed.

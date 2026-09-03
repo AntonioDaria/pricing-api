@@ -21,7 +21,7 @@ class InMemoryCache:
         """Return the cached value, or None if the key is missing or expired."""
         entry = self._entries.get(key)
         if entry is None:
-            return None # cache miss
+            return None  # cache miss
 
         value, expires_at = entry
         if expires_at is not None and self._time_fn() >= expires_at:
