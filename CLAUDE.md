@@ -97,6 +97,9 @@ heavyweight envelope:
 - Every module has a top-of-file docstring stating its purpose. Every public
   function, method, and class has a docstring describing what it does —
   including tests. Keep docstrings short and useful, not verbose.
+- Logging: use `structlog.get_logger(__name__)` with key-value kwargs — not
+  `logging.getLogger` + `extra` (its fields do not render under the current
+  config).
 
 ## Testing
 

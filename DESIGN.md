@@ -51,12 +51,18 @@ Response: `{ "prices": [ { hotel, price, currency, difference, arrival_date } ] 
 ## Locked decisions
 
 1. **"Newest extract" resolution.** A KV `get` needs the whole key, but the request
-   only gives hotel + arrival — the newest `extract_date` is unknown. Resolve O(1),
-   never scan:
-   - **Current:** the newest scrape is the **last scrape day** (known operationally)
-     → direct key → batch `get`.
-   - **Historic:** use the **side-index** → newest extract for `(hotel, historic_arrival)`
-     → `get`.
+   only gives hotel + arrival — the newest `extract_date` is unknown. Resolve it O(1)
+   via a **side-index** `(hotel, arrival) → newest extract_date`, then `get` by the
+   full key. Never scan.
+   - The store port is **uniform**: it resolves the newest reading for any
+     `(hotel, arrival)` pair the same way, for **both** current and historic — so the
+     read path doesn't distinguish them.
+   - *Optional optimisation (not built):* for a **current** arrival the newest scrape
+     is the **last scrape day**, so the index lookup could be skipped with a direct
+     key. We keep the index for both because it's simpler and **more robust** — the
+     last-scrape-day shortcut assumes every hotel was scraped that day and silently
+     misses any whose latest scrape was earlier, whereas the index always points at
+     the true newest.
    (If we owned the key we'd order it `(hotel, arrival, extract)` for a native range
    query; the key is fixed, so an index is the pragmatic answer.)
 2. **Currency = filter, not convert.** Only use readings already in the requested
@@ -127,8 +133,8 @@ place — one consistent JSON error shape, kept deliberately simple:
 - **Money as `float`** to match the OpenAPI `number` type and the source data; a
   single same-currency subtraction of display prices makes float acceptable here.
   A real pricing system should use **integer minor units + currency code** with
-  integer arithmetic and float only at the display edge which also makes 
-  cross-currency operations an explicit error.
+  integer arithmetic and float only at the display edge (the model we run in
+  production) — which also makes cross-currency operations an explicit error.
 - Module-level docstring on every file; short docstring on every public
   function/class, **including tests**. Docstrings state *what* a function does and
   its contract (args / returns / edge behaviour) — design **rationale** lives in

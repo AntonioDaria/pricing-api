@@ -20,8 +20,7 @@ def historic_arrival(arrival: date, years_ago: int) -> date | None:
 
     Makes a new date with only the year swapped — so 2026-03-15 with years_ago=5 becomes 2021-03-15.
     """
-
-    # If the target year is not a leap year, 
+    # If the target year is not a leap year,
     # 29 February maps to None rather than clamping to 28 February.
     try:
         return arrival.replace(year=arrival.year - years_ago)

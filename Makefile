@@ -1,4 +1,4 @@
-.PHONY: install run test lint fmt
+.PHONY: install run test lint fmt typecheck
 
 install:
 	uv sync
@@ -14,3 +14,6 @@ lint:
 
 fmt:
 	uv run ruff format .
+
+typecheck:
+	uv run mypy app tests
