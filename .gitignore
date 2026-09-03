@@ -1,0 +1,36 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# ---- Virtual env (uv creates .venv; keep uv.lock committed) ----
+.venv/
+venv/
+
+# ---- Environment / secrets ----
+.env
+.env.*
+!.env.example
+
+# ---- Testing / coverage ----
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# ---- Linting / typing caches ----
+.ruff_cache/
+.mypy_cache/
+
+# ---- IDE / editor ----
+.idea/
+.vscode/
+*.swp
+
+# ---- OS ----
+.DS_Store
