@@ -4,7 +4,12 @@ from datetime import date
 
 import pytest
 
-from app.domain.dates import date_to_epoch_days, epoch_days_to_date, historic_arrival
+from app.domain.dates import (
+    date_to_epoch_days,
+    dates_in_month,
+    epoch_days_to_date,
+    historic_arrival,
+)
 
 
 @pytest.mark.parametrize(
@@ -35,3 +40,26 @@ def test_historic_arrival_returns_none_for_nonexistent_date() -> None:
 def test_historic_arrival_allows_leap_day_in_a_leap_year() -> None:
     """29 February maps cleanly onto another leap year."""
     assert historic_arrival(date(2024, 2, 29), 4) == date(2020, 2, 29)
+
+
+def test_dates_in_month_covers_the_whole_month_in_order() -> None:
+    """Every date in the month is returned, ascending, from the 1st to the last day."""
+    days = dates_in_month(2024, 3)
+
+    assert len(days) == 31
+    assert days[0] == date(2024, 3, 1)
+    assert days[-1] == date(2024, 3, 31)
+    assert days == sorted(days)
+
+
+def test_dates_in_month_includes_the_leap_day() -> None:
+    """February of a leap year has 29 days, ending on the 29th."""
+    days = dates_in_month(2024, 2)
+
+    assert len(days) == 29
+    assert days[-1] == date(2024, 2, 29)
+
+
+def test_dates_in_month_excludes_the_leap_day_in_a_common_year() -> None:
+    """February of a common year has 28 days."""
+    assert dates_in_month(2023, 2)[-1] == date(2023, 2, 28)

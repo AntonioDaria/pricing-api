@@ -1,5 +1,6 @@
 """Pure date helpers: epoch-day conversion and historic arrival mapping."""
 
+import calendar
 from datetime import date, timedelta
 
 _EPOCH = date(1970, 1, 1)
@@ -26,3 +27,9 @@ def historic_arrival(arrival: date, years_ago: int) -> date | None:
         return arrival.replace(year=arrival.year - years_ago)
     except ValueError:
         return None
+
+
+def dates_in_month(year: int, month: int) -> list[date]:
+    """Return every date in the given month, in ascending order."""
+    _, days = calendar.monthrange(year, month)
+    return [date(year, month, day) for day in range(1, days + 1)]

@@ -169,4 +169,6 @@ place — one consistent JSON error shape, kept deliberately simple:
 - More filters (room type, length-of-stay, meal, occupancy); pagination.
 - **Precomputed/materialised differences**; streaming updates on new scrapes.
 - Shared **Redis** cache; response-level caching; CDN edge caching.
+- **Negative caching** of permanent historic gaps — cache a "no data" marker for
+  historic misses (they never change) so known gaps aren't re-read every request.
 - Observability: metrics, tracing, SLOs on the per-request timing.
