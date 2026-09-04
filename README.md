@@ -58,14 +58,40 @@ make typecheck  # mypy, strict
 ```
 
 With the service running, the seeded demo dataset covers October 2026 for hotels `3173269`
-and `3173270`:
+and `3173270`. Pipe any call to [`jq`](https://jqlang.github.io/jq/) for readable output; it
+is optional, the JSON prints fine without it.
+
+**Request timing and caching** — every response carries an `X-Response-Time-ms` header. Run
+this call twice: the first is cold and reads the store; the second is served from the warm
+cache and is markedly faster. Run it before the happy path below (or restart the service) so
+the first call is genuinely cold.
 
 ```bash
-curl -s "http://127.0.0.1:8000/pricing/pre_corona_difference/?month=2026-10&currency=SGD&hotels=3173269&hotels=3173270&years_ago=5"
+curl -s -D - -o /dev/null "http://127.0.0.1:8000/pricing/pre_corona_difference/?month=2026-10&currency=SGD&hotels=3173269&hotels=3173270&years_ago=5" | grep -i x-response-time
 ```
 
-That dataset deliberately contains gaps, so the response demonstrates both degradation rules
-described below.
+**Happy path** — one row per hotel per arrival date:
+
+```bash
+curl -s "http://127.0.0.1:8000/pricing/pre_corona_difference/?month=2026-10&currency=SGD&hotels=3173269&hotels=3173270&years_ago=5" | jq
+```
+
+The seeded data deliberately contains gaps, so this response shows both degradation rules:
+arrival day 7 is **omitted** (no current price), and days 14 and 15 come back with
+`difference: null` (no historic price).
+
+**A rejected request** — a month outside `01`–`12` fails validation with `422` before the
+store is touched. The `-w` flag prints the status code after the body:
+
+```bash
+curl -s -w "\nHTTP %{http_code}\n" "http://127.0.0.1:8000/pricing/pre_corona_difference/?month=2026-13&currency=SGD&hotels=3173269&years_ago=5"
+```
+
+The body names the failing field and the reason (`value_error`, "Month must be between 01 and
+12."), and the trailing line shows `HTTP 422`.
+
+For the full parameter set, and to try requests interactively, open the docs at
+<http://127.0.0.1:8000/docs>.
 
 ## Project layout
 
