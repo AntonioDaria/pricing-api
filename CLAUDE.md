@@ -74,7 +74,9 @@ concrete need emerges and I approve it first.
 ## Performance
 
 - One request fans out to up to ~620 reads. Batch all needed keys into a few
-  multi-gets; the handler is async (the work is I/O-bound).
+  multi-gets; the handler is a sync `def`, which FastAPI runs in a threadpool,
+  so a blocking store call does not stall the event loop; an async store
+  adapter (awaited) is the future step for event-loop concurrency.
 - In-memory cache behind the Cache port: historic prices are immutable ->
   cache indefinitely; current prices change once a day -> TTL until the next
   scrape. Redis is the production drop-in (same port).

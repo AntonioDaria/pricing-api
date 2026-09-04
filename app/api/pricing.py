@@ -17,7 +17,7 @@ CURRENCY_PATTERN = r"^[A-Z]{3}$"
 
 
 @router.get("/pre_corona_difference/")
-async def pre_corona_difference(
+def pre_corona_difference(
     month: Annotated[str, Query(pattern=MONTH_PATTERN, description="Arrival month, YYYY-MM.")],
     currency: Annotated[str, Query(pattern=CURRENCY_PATTERN, description="3-letter code.")],
     hotels: Annotated[list[int], Query(min_length=1, max_length=MAX_HOTELS)],

@@ -80,7 +80,10 @@ Response: `{ "prices": [ { hotel, price, currency, difference, arrival_date } ] 
    and **store unavailable → `5xx`**. A missing key is *expected* (degrade); a store
    outage is a *failure* (error).
 6. **Performance / fan-out.** One request ≈ up to 620 reads.
-   - **Build:** **batch** all needed keys into a few multi-gets; **async** handler.
+   - **Build:** **batch** all needed keys into a few multi-gets. The handler is a
+     **sync `def`** — FastAPI runs it in a threadpool, so a blocking store call gives
+     cross-request concurrency without stalling the event loop. An **async store
+     adapter** (awaited) is the future step for event-loop concurrency.
    - **Build:** **in-memory cache** behind the `Cache` port — *historic cached
      indefinitely (immutable), current with a TTL until the next scrape.* Redis is
      the production drop-in (same port; in-memory is single-process, lost on restart).

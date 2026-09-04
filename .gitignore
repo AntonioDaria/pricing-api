@@ -34,3 +34,5 @@ coverage.xml
 
 # ---- OS ----
 .DS_Store
+# ---- Dev-only performance experiments (scratch, not shipped) ----
+perf/
